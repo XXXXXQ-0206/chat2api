@@ -34,11 +34,11 @@ export class FileStore {
   }
 
   async saveLocalPath(localPath: string, mimeType?: string): Promise<FileRecord> {
-    // codeql[js/path-injection] The canonical source is rejected unless it resolves within the private data root before it is read.
-    const sourcePath = await realpath(localPath);
     const dataDirectory = await realpath(this.config.dataDir);
+    const requestedFilename = dataRootFilename(localPath, dataDirectory);
+    const sourcePath = await realpath(path.join(dataDirectory, requestedFilename));
     if (!isPathWithinDirectory(dataDirectory, sourcePath)) {
-      throw new AppError(400, "file_path_not_allowed", "JSON file paths must stay within the chat2api data directory. Use multipart upload for external files.");
+      throw new AppError(400, "file_path_not_allowed", "JSON file paths must name a file directly inside the chat2api data directory. Use multipart upload for external files.");
     }
 
     const filename = sanitizeFilename(path.basename(sourcePath));
@@ -93,6 +93,17 @@ export class FileStore {
 
 function sanitizeFilename(filename: string): string {
   return filename.replace(/[^a-zA-Z0-9._-]+/g, "_").slice(0, 160) || "upload.bin";
+}
+
+function dataRootFilename(value: string, dataDirectory: string): string {
+  const filename = path.basename(value);
+  const directFilename = !path.isAbsolute(value) && value === filename;
+  const directDataRootPath = path.isAbsolute(value) && path.relative(dataDirectory, path.dirname(path.resolve(value))) === "";
+  if ((directFilename || directDataRootPath) && filename === sanitizeFilename(filename) && filename !== "." && filename !== "..") {
+    return filename;
+  }
+
+  throw new AppError(400, "file_path_not_allowed", "JSON file paths must name a file directly inside the chat2api data directory. Use multipart upload for external files.");
 }
 
 function isPathWithinDirectory(directory: string, candidate: string): boolean {

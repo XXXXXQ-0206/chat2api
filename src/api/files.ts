@@ -47,7 +47,7 @@ export function registerFileRoutes(app: FastifyInstance, context: ApiContext): v
     };
   });
 
-  app.get("/v1/files/:id/content", async (request, reply) => {
+  app.get("/v1/files/:id/content", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, async (request, reply) => {
     const params = request.params as { id: string };
     const record = await context.fileStore.get(params.id);
     if (record.mimeType) reply.header("content-type", record.mimeType);

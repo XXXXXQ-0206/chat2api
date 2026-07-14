@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -151,6 +151,41 @@ describe("routes", () => {
     } finally {
       await rm(externalDirectory, { recursive: true, force: true });
     }
+  });
+
+  it("rejects JSON uploads that target nested data paths", async () => {
+    const nestedDirectory = path.join(process.env.CHAT2API_DATA_DIR ?? "", "nested");
+    const source = path.join(nestedDirectory, "inside.txt");
+    await mkdir(nestedDirectory);
+    await writeFile(source, "nested data");
+
+    const response = await bundle.app.inject({
+      method: "POST",
+      url: "/v1/files",
+      payload: { path: source, mime_type: "text/plain" }
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({ error: { code: "file_path_not_allowed" } });
+  });
+
+  it("rate limits repeated file content downloads", async () => {
+    const source = path.join(process.env.CHAT2API_DATA_DIR ?? "", "download.txt");
+    await writeFile(source, "download data");
+    const created = await bundle.app.inject({
+      method: "POST",
+      url: "/v1/files",
+      payload: { path: source, mime_type: "text/plain" }
+    });
+    const { id } = created.json();
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await bundle.app.inject({ method: "GET", url: `/v1/files/${id}/content` });
+      expect(response.statusCode).toBe(200);
+    }
+
+    const blocked = await bundle.app.inject({ method: "GET", url: `/v1/files/${id}/content` });
+    expect(blocked.statusCode).toBe(429);
   });
 
   it("returns OpenAI tool calls when tools are requested", async () => {
