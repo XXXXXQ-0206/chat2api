@@ -1,0 +1,71 @@
+{
+  "name": "chat2api",
+  "version": "1.0.0",
+  "description": "Local OpenAI-, Anthropic-, and Responses-compatible bridge for a user-controlled DeepSeek web session.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XXXXXQ-0206/chat2api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/XXXXXQ-0206/chat2api/issues"
+  },
+  "homepage": "https://github.com/XXXXXQ-0206/chat2api#readme",
+  "keywords": [
+    "deepseek",
+    "openai-compatible",
+    "anthropic",
+    "responses-api",
+    "agent",
+    "playwright"
+  ],
+  "type": "module",
+  "bin": {
+    "chat2api": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts serve",
+    "build": "tsup",
+    "start": "node dist/index.js serve",
+    "login": "tsx src/index.ts login",
+    "probe": "tsx src/index.ts probe-context",
+    "test": "node scripts/vitest-runner.mjs",
+    "tray:build": "dotnet build windows/Chat2ApiTray/Chat2ApiTray.csproj -c Release",
+    "tray:run": "dotnet run --project windows/Chat2ApiTray/Chat2ApiTray.csproj -c Release",
+    "tray:publish:win": "dotnet publish windows/Chat2ApiTray/Chat2ApiTray.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o release/Chat2ApiTray-win-x64",
+    "package": "npm run build && node scripts/release/build-portable.mjs",
+    "test:portable-contract": "node --test scripts/release/portable-contract.node.mjs",
+    "test:dotnet": "dotnet run --project windows/Chat2ApiTray.Tests/Chat2ApiTray.Tests.csproj -c Release",
+    "build:dotnet": "dotnet build dotnet/Chat2Api.Host/Chat2Api.Host.csproj -c Release"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.3.0",
+    "@fastify/multipart": "^10.1.0",
+    "@fastify/rate-limit": "^11.1.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.10.0",
+    "pino": "^9.5.0",
+    "playwright": "^1.49.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
+  }
+}

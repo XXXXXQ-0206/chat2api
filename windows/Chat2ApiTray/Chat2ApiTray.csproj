@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <ProjectReference Include="..\..\dotnet\Chat2Api.Core\Chat2Api.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\TraySettings.cs" />
+    <Compile Remove="Services\Api\**\*.cs" />
+    <Compile Remove="Services\Context\**\*.cs" />
+    <Compile Remove="Services\BrowserContextModePolicy.cs" />
+    <Compile Remove="Services\DataRetentionService.cs" />
+    <Compile Remove="Services\DeepSeekComposerSelector.cs" />
+    <Compile Remove="Services\DeepSeekModeSelector.cs" />
+    <Compile Remove="Services\DeepSeekWebAdapter.cs" />
+    <Compile Remove="Services\EmbeddedChat2ApiServer.cs" />
+    <Compile Remove="Services\FileLogger.cs" />
+    <Compile Remove="Services\IDeepSeekWebAdapter.cs" />
+    <Compile Remove="Services\LogRedactor.cs" />
+    <Compile Remove="Services\LocalDataDirectorySecurity.cs" />
+  </ItemGroup>
+
+</Project>
