@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.17" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
+    <PackageReference Include="JsonSchema.Net" Version="9.2.2" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+    <PackageReference Include="sqlite-vec" Version="0.1.7-alpha.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\windows\Chat2ApiTray\Models\TraySettings.cs" Link="Models\TraySettings.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\Api\*.cs" Link="Services\Api\%(Filename)%(Extension)" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\Context\*.cs" Link="Services\Context\%(Filename)%(Extension)" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\BrowserContextModePolicy.cs" Link="Services\BrowserContextModePolicy.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\DeepSeekComposerSelector.cs" Link="Services\DeepSeekComposerSelector.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\DeepSeekModeSelector.cs" Link="Services\DeepSeekModeSelector.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\DeepSeekWebAdapter.cs" Link="Services\DeepSeekWebAdapter.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\DataRetentionService.cs" Link="Services\DataRetentionService.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\EmbeddedChat2ApiServer.cs" Link="Services\EmbeddedChat2ApiServer.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\FileLogger.cs" Link="Services\FileLogger.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\IDeepSeekWebAdapter.cs" Link="Services\IDeepSeekWebAdapter.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\LocalDataDirectorySecurity.cs" Link="Services\LocalDataDirectorySecurity.cs" />
+    <Compile Include="..\..\windows\Chat2ApiTray\Services\LogRedactor.cs" Link="Services\LogRedactor.cs" />
+  </ItemGroup>
+
+</Project>

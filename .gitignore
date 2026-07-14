@@ -1,0 +1,39 @@
+# Dependencies and Node output
+node_modules/
+dist/
+coverage/
+.tsup/
+
+# Local configuration and runtime data
+.env
+.env.*
+!.env.example
+.chat2api/
+data/
+logs/
+uploads/
+diagnostics/
+browser-profile/
+playwright/.cache/
+test-results/
+playwright-report/
+*.log
+
+# .NET output and user state
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Release output
+/release/
+artifacts/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vs/
+.vscode/

@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      production-dependencies:
+        dependency-type: production
+
+  - package-ecosystem: nuget
+    directory: /dotnet/Chat2Api.Core
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: nuget
+    directory: /dotnet/Chat2Api.Host
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: nuget
+    directory: /windows/Chat2ApiTray
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: nuget
+    directory: /windows/Chat2ApiTray.Tests
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

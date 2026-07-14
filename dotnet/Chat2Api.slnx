@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Chat2Api.Core/Chat2Api.Core.csproj" />
+  <Project Path="Chat2Api.Host/Chat2Api.Host.csproj" />
+</Solution>

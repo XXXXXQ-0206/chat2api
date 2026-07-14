@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish-host:
+    name: Publish ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            extension: zip
+          - os: ubuntu-latest
+            rid: linux-x64
+            extension: tar.gz
+          - os: macos-15-intel
+            rid: osx-x64
+            extension: tar.gz
+          - os: macos-14
+            rid: osx-arm64
+            extension: tar.gz
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+      - name: Publish Console Host
+        shell: pwsh
+        run: >
+          dotnet publish dotnet/Chat2Api.Host/Chat2Api.Host.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=false
+          -o artifacts/chat2api-${{ matrix.rid }}
+      - name: Archive Windows host
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path artifacts/chat2api-${{ matrix.rid }}/* -DestinationPath artifacts/chat2api-${{ matrix.rid }}.zip
+      - name: Archive Unix host
+        if: runner.os != 'Windows'
+        run: tar -czf artifacts/chat2api-${{ matrix.rid }}.tar.gz -C artifacts chat2api-${{ matrix.rid }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chat2api-${{ matrix.rid }}
+          path: artifacts/chat2api-${{ matrix.rid }}.${{ matrix.extension }}
+
+  release:
+    needs: publish-host
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: >
+          gh release create "$TAG" release-assets/*
+          --title "chat2api $TAG"
+          --notes-file docs/releases/v1.0.0.md
