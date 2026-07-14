@@ -11,7 +11,7 @@ public static class ToolEnvelopeParser
     public static ParsedToolEnvelope Parse(string content)
     {
         var start = content.IndexOf(ToolOpen, StringComparison.Ordinal);
-        var end = content.IndexOf(ToolClose, StringComparison.Ordinal);
+        var end = content.IndexOf(ToolClose, start >= 0 ? start + ToolOpen.Length : 0, StringComparison.Ordinal);
         var hasOpen = start >= 0;
         var hasClose = end >= 0;
 

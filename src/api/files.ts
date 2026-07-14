@@ -4,7 +4,7 @@ import type { ApiContext } from "./common.js";
 import { AppError } from "../utils/errors.js";
 
 export function registerFileRoutes(app: FastifyInstance, context: ApiContext): void {
-  app.post("/v1/files", async (request) => {
+  app.post("/v1/files", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, async (request) => {
     if (request.isMultipart()) {
       const part = await request.file();
       if (!part) throw new AppError(400, "file_missing", "Expected multipart field containing a file.");

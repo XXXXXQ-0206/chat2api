@@ -24,6 +24,7 @@ var tests = new (string Name, Func<Task> Run)[]
     ("Responses JSON preserves text beside tool calls", ResponsesJsonPreservesTextBesideToolCalls),
     ("file logger redacts credentials and prompt bodies", FileLoggerRedactsCredentialsAndPromptBodies),
     ("file logger includes exception stack traces", FileLoggerIncludesExceptionStackTraces),
+    ("file logger uses the injected clock for line timestamps", FileLoggerUsesInjectedClockForLineTimestamps),
     ("file logger rotates daily for retention", FileLoggerRotatesDailyForRetention),
     ("local data directories receive private ACLs", LocalDataDirectoriesReceivePrivateAcls),
     ("concurrent conversation writes preserve private data directories", ConcurrentConversationWritesPreservePrivateDataDirectories),
@@ -34,6 +35,8 @@ var tests = new (string Name, Func<Task> Run)[]
     ("anthropic adapter preserves tool use and result content", AnthropicAdapterPreservesToolUseAndResultContent),
     ("responses adapter preserves function call output items", ResponsesAdapterPreservesFunctionCallOutputItems),
     ("protocol adapters preserve vision file ids", ProtocolAdaptersPreserveVisionFileIds),
+    ("tool envelope parser ignores closing tags before an envelope", ToolEnvelopeParserIgnoresClosingTagsBeforeEnvelope),
+    ("tool envelope parser rejects a close tag without an opening tag", ToolEnvelopeParserRejectsCloseTagWithoutOpeningTag),
     ("protocol policy defaults to expert and rejects fast", ProtocolPolicyDefaultsToExpertAndRejectsFast),
     ("web search controls use tool calls without browser search", WebSearchControlsUseToolCallsWithoutBrowserSearch),
     ("context probe store persists measured limits", ContextProbeStorePersistsMeasuredLimits),
@@ -162,6 +165,19 @@ static Task FileLoggerIncludesExceptionStackTraces()
     var content = File.ReadAllText(logger.LogFilePath);
     AssertContains(content, "synthetic logger failure", "logger preserves error message");
     AssertContains(content, nameof(ThrowLoggedException), "logger preserves exception stack trace");
+    return Task.CompletedTask;
+}
+
+static Task FileLoggerUsesInjectedClockForLineTimestamps()
+{
+    var root = CreateTempDirectory();
+    var current = new DateTime(2026, 7, 1, 9, 8, 7, DateTimeKind.Local);
+    var logger = new FileLogger(Path.Combine(root, "Logs"), () => current);
+
+    logger.Info("clocked log entry");
+
+    var content = File.ReadAllText(logger.LogFilePath);
+    AssertContains(content, "[2026-07-01 09:08:07]", "logger line uses injected clock");
     return Task.CompletedTask;
 }
 
@@ -1980,6 +1996,26 @@ static Task ProtocolAdaptersPreserveVisionFileIds()
 
     AssertEqual("vision", request.Mode, "vision mode from image content");
     AssertEqual("file_image123", request.FileIds!.Single(), "vision file id");
+    return Task.CompletedTask;
+}
+
+static Task ToolEnvelopeParserIgnoresClosingTagsBeforeEnvelope()
+{
+    var parsed = ToolEnvelopeParser.Parse("stray </chat2api_tool_calls> before <chat2api_tool_calls>[{\"name\":\"lookup\",\"arguments\":{\"query\":\"status\"}}]</chat2api_tool_calls> after");
+
+    AssertEqual<string?>(null, parsed.ParseError, "tool envelope parse error");
+    AssertEqual(1, parsed.ToolCalls?.Count ?? 0, "tool envelope call count");
+    AssertEqual("lookup", parsed.ToolCalls![0].Function.Name, "tool envelope tool name");
+    AssertContains(parsed.Text, "stray </chat2api_tool_calls> before", "tool envelope preserves leading text");
+    AssertContains(parsed.Text, "after", "tool envelope preserves trailing text");
+    return Task.CompletedTask;
+}
+
+static Task ToolEnvelopeParserRejectsCloseTagWithoutOpeningTag()
+{
+    var parsed = ToolEnvelopeParser.Parse("stray </chat2api_tool_calls>");
+
+    AssertTrue(!string.IsNullOrWhiteSpace(parsed.ParseError), "close tag without opening tag is malformed");
     return Task.CompletedTask;
 }
 

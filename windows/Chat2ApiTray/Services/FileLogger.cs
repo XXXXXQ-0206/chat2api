@@ -35,7 +35,7 @@ public sealed class FileLogger
 
     private void Write(string level, string message)
     {
-        var line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {LogRedactor.Redact(message)}";
+        var line = $"[{_clock():yyyy-MM-dd HH:mm:ss}] [{level}] {LogRedactor.Redact(message)}";
         lock (_writeLock)
         {
             File.AppendAllText(LogFilePath, line + Environment.NewLine, Encoding.UTF8);

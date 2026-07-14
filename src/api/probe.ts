@@ -5,12 +5,12 @@ import { AppError } from "../utils/errors.js";
 import type { ApiContext } from "./common.js";
 
 export function registerProbeRoutes(app: FastifyInstance, context: ApiContext): void {
-  app.get("/admin/probe/context", async () => {
+  app.get("/admin/probe/context", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, async () => {
     const probe = new ContextProbe(context.config, context.provider, context.logger);
     return probe.readAll();
   });
 
-  app.post("/admin/probe/context", async (request) => {
+  app.post("/admin/probe/context", { config: { rateLimit: { max: 2, timeWindow: "1 hour" } } }, async (request) => {
     const body = request.body as Record<string, unknown>;
     const mode = body.mode as DeepSeekMode;
     if (mode === "fast") {

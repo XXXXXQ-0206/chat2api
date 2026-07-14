@@ -24,12 +24,15 @@ describe("public release documentation", () => {
 
   it("documents disabled fast mode and the external search boundary", async () => {
     const english = await readFile("README.md", "utf8");
+    const chinese = await readFile("README.zh-CN.md", "utf8");
     const contract = await readFile("docs/WEB_SEARCH_TOOL_CONTRACT.md", "utf8");
 
     expect(english).not.toContain("deepseek-chat2api-fast");
     expect(english).toContain("400 unsupported_mode");
     expect(english).toContain("does not execute network searches");
     expect(english).toContain("does not persist search results");
+    expect(english).toContain("Per-route rate limits protect browser session management, file uploads, and context probes.");
+    expect(chinese).toContain("按路由限流保护浏览器会话管理、文件上传和上下文探测。");
     expect(contract).toContain("OpenAI Chat Completions");
     expect(contract).toContain("Anthropic Messages");
     expect(contract).toContain("Responses API");

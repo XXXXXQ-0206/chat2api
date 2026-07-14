@@ -12,6 +12,8 @@ chat2api keeps browser login under the user's control, translates standard API r
 
 The service binds to loopback by default. It is intended for a single user's local development environment, not as an unauthenticated network service.
 
+Per-route rate limits protect browser session management, file uploads, and context probes.
+
 ## Features
 
 - OpenAI-compatible `POST /v1/chat/completions`, including JSON and SSE streaming.

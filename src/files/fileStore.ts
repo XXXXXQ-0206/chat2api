@@ -34,6 +34,7 @@ export class FileStore {
   }
 
   async saveLocalPath(localPath: string, mimeType?: string): Promise<FileRecord> {
+    // codeql[js/path-injection] The canonical source is rejected unless it resolves within the private data root before it is read.
     const sourcePath = await realpath(localPath);
     const dataDirectory = await realpath(this.config.dataDir);
     if (!isPathWithinDirectory(dataDirectory, sourcePath)) {

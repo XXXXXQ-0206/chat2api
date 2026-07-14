@@ -387,7 +387,7 @@ public partial class App : System.Windows.Application
         var directory = Path.GetDirectoryName(_bootstrapLogPath);
         if (!string.IsNullOrWhiteSpace(directory))
         {
-            Directory.CreateDirectory(directory);
+            LocalDataDirectorySecurity.EnsurePrivateDirectory(directory);
         }
     }
 

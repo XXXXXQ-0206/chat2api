@@ -1,5 +1,6 @@
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Logger } from "pino";
 import { registerAnthropicRoutes } from "./api/anthropic.js";
@@ -31,6 +32,7 @@ export async function createServer(config: Chat2ApiConfig = loadConfig()): Promi
   const context: ApiContext = { config, logger, provider, fileStore };
 
   await app.register(cors, { origin: true });
+  await app.register(rateLimit, { global: false });
   app.addContentTypeParser("application/x-www-form-urlencoded", { parseAs: "string" }, (_request, _body, done) => {
     done(null, {});
   });

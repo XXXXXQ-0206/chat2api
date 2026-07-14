@@ -43,6 +43,16 @@ describe("routes", () => {
     expect(postLogin.json()).toMatchObject({ loggedIn: true, needsLogin: false });
   });
 
+  it("rate limits repeated login requests", async () => {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await bundle.app.inject({ method: "POST", url: "/auth/login" });
+      expect(response.statusCode).toBe(200);
+    }
+
+    const blocked = await bundle.app.inject({ method: "POST", url: "/auth/login" });
+    expect(blocked.statusCode).toBe(429);
+  });
+
   it("returns OpenAI-compatible chat completions", async () => {
     const response = await bundle.app.inject({
       method: "POST",
