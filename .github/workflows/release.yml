@@ -52,7 +52,7 @@ jobs:
       - name: Archive Unix host
         if: runner.os != 'Windows'
         run: tar -czf artifacts/chat2api-${{ matrix.rid }}.tar.gz -C artifacts chat2api-${{ matrix.rid }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: chat2api-${{ matrix.rid }}
           path: artifacts/chat2api-${{ matrix.rid }}.${{ matrix.extension }}
