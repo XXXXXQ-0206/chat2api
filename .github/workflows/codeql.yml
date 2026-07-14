@@ -20,13 +20,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [javascript-typescript, csharp]
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: csharp
+            build-mode: manual
     steps:
       - uses: actions/checkout@v7
       - uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          build-mode: manual
+          build-mode: ${{ matrix.build-mode }}
       - uses: actions/setup-node@v5
         if: matrix.language == 'javascript-typescript'
         with:

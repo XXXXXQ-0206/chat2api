@@ -221,13 +221,10 @@ static async Task ConcurrentConversationWritesPreservePrivateDataDirectories()
     const int writesPerWorker = 4;
     var root = CreateTempDirectory();
     var store = new ConversationStore(root);
-    using var barrier = new Barrier(workers);
-    var writes = Enumerable.Range(0, workers).Select(worker => Task.Run(async () =>
+    var releaseWrites = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+    var writes = Enumerable.Range(0, workers).Select(async worker =>
     {
-        if (!barrier.SignalAndWait(TimeSpan.FromSeconds(10)))
-        {
-            throw new TimeoutException("concurrent conversation writer barrier timed out");
-        }
+        await releaseWrites.Task;
 
         for (var write = 0; write < writesPerWorker; write += 1)
         {
@@ -237,8 +234,9 @@ static async Task ConcurrentConversationWritesPreservePrivateDataDirectories()
                 Messages = [new ApiMessage("user", "synthetic concurrent state")]
             });
         }
-    }));
+    }).ToArray();
 
+    releaseWrites.SetResult();
     await Task.WhenAll(writes);
     var conversationDirectory = Path.Combine(root, "Conversations");
     AssertEqual(workers * writesPerWorker, Directory.EnumerateFiles(conversationDirectory, "*.json").Count(), "concurrent conversation file count");

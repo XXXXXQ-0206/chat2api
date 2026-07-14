@@ -74,4 +74,11 @@ describe("public release documentation", () => {
     expect(gitignore).toContain("/release/");
     expect(gitignore).not.toMatch(/^release\/$/m);
   });
+
+  it("uses CodeQL build modes supported by each scanned language", async () => {
+    const workflow = await readFile(".github/workflows/codeql.yml", "utf8");
+
+    expect(workflow).toMatch(/language: javascript-typescript\s+build-mode: none/);
+    expect(workflow).toMatch(/language: csharp\s+build-mode: manual/);
+  });
 });
